@@ -86,7 +86,7 @@ class ExtendedTextSelection extends StatefulWidget {
 
   final String data;
 
-  final TextSelectionControls textSelectionControls;
+  final ExtendedMaterialTextSelectionControls textSelectionControls;
 
   ExtendedTextSelection(
       {this.onTap,
@@ -127,6 +127,8 @@ class ExtendedTextSelectionState extends State<ExtendedTextSelection>
   @override
   void initState() {
     _textSelectionControls = widget.textSelectionControls;
+    textEditingValue = TextEditingValue(
+        text: widget.data, selection: TextSelection.collapsed(offset: 0));
     _selectionGestureDetectorBuilder =
         CommonTextSelectionGestureDetectorBuilder(
       delegate: this,
@@ -134,10 +136,11 @@ class ExtendedTextSelectionState extends State<ExtendedTextSelection>
       showToolbar: showToolbar,
       onTap: widget.onTap,
       context: context,
+
       requestKeyboard: null,
+             textSelectionControls:_textSelectionControls
     );
-    textEditingValue = TextEditingValue(
-        text: widget.data, selection: TextSelection.collapsed(offset: 0));
+
     super.initState();
   }
 
@@ -145,6 +148,7 @@ class ExtendedTextSelectionState extends State<ExtendedTextSelection>
   void didUpdateWidget(ExtendedTextSelection oldWidget) {
     if (oldWidget.textSelectionControls != this.widget.textSelectionControls) {
       _textSelectionControls = widget.textSelectionControls;
+
       final ThemeData themeData = Theme.of(context);
       switch (themeData.platform) {
         case TargetPlatform.android:
@@ -156,13 +160,15 @@ class ExtendedTextSelectionState extends State<ExtendedTextSelection>
           _textSelectionControls ??= extendedCupertinoTextSelectionControls;
           break;
       }
+
+
     }
 
     if (oldWidget.data != this.widget.data) {
       textEditingValue = TextEditingValue(
           text: widget.data, selection: TextSelection.collapsed(offset: 0));
     }
-
+    _selectionGestureDetectorBuilder.setTest(_textSelectionControls);
     super.didUpdateWidget(oldWidget);
   }
 
@@ -226,6 +232,7 @@ class ExtendedTextSelectionState extends State<ExtendedTextSelection>
       behavior: HitTestBehavior.translucent,
       child: result,
     );
+    _selectionGestureDetectorBuilder.setTest(_textSelectionControls);
     return result;
   }
 
@@ -239,6 +246,7 @@ class ExtendedTextSelectionState extends State<ExtendedTextSelection>
       TextSelection selection, SelectionChangedCause cause) {
     textEditingValue = textEditingValue?.copyWith(selection: selection);
     _hideSelectionOverlayIfNeeded();
+    _selectionGestureDetectorBuilder.setTest(_textSelectionControls);
     //todo
 //    if (widget.selectionControls != null) {
     _selectionOverlay = ExtendedTextSelectionOverlay(
